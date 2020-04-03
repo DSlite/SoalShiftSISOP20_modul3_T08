@@ -18,7 +18,7 @@ void *factorial(void* arg) {
   int i = ((struct args*)arg)->i;
   int j = ((struct args*)arg)->j;
   long hasilEl = 1;
-  for (int n = 1; n <= matrix[i][j]; n++) hasilEl *= (long)n;
+  for (int n = 1; n <= matrix[i][j]; n++) hasilEl += (long)n;
   hasil[i][j] = hasilEl;
 }
 
