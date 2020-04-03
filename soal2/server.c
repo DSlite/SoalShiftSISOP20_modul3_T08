@@ -237,14 +237,18 @@ void *server_main_routine(void *arg) {
 
       prompt(999, i);
       while(player_data[i].health > 0 && player_data[!i].health > 0) {
-        get_data(buffer, i);
-        // if (player_data[i].health == 0) break;
-        if (strcmp(buffer, " ") == 0) {
-          player_data[!i].health -=10;
-          prompt(410, !i);
-          prompt(411, i);
+        if (strlen(player_data[i].input) > 0) {
+          if (strcmp(player_data[i].input, " ") == 0) {
+            player_data[!i].health -=10;
+            prompt(410, !i);
+            prompt(411, i);
+          }
+          memset(player_data[i].input, 0, 1000);
         }
       }
+
+      player_data[i].is_game = 0;
+      player_data[i].is_ready = 0;
 
       if (player_data[i].health > 0) {
         prompt(421, i);
@@ -254,9 +258,8 @@ void *server_main_routine(void *arg) {
       get_data(buffer, i);
       prompt(998, i);
 
-      player_data[i].is_game = 0;
-      player_data[i].is_ready = 0;
       player_data[i].health = 100;
+
     }
   }
 }
