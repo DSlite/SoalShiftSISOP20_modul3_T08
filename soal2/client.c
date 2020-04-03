@@ -6,7 +6,6 @@
 #include <string.h>
 #include <unistd.h>
 #include <arpa/inet.h>
-#include <sys/shm.h>
 #include <termios.h>
 #include <pthread.h>
 #include <ctype.h>
@@ -16,8 +15,7 @@
 /* TERMIOS */
 static struct termios old, current;
 
-void initTermios()
-{
+void initTermios() {
   tcgetattr(0, &old);
   current = old;
   current.c_lflag &= ~ICANON;
@@ -25,13 +23,11 @@ void initTermios()
   tcsetattr(0, TCSANOW, &current);
 }
 
-void resetTermios(void)
-{
+void resetTermios(void) {
   tcsetattr(0, TCSANOW, &old);
 }
 
-char getch()
-{
+char getch() {
   char ch;
   initTermios();
   ch = getchar();
@@ -44,7 +40,7 @@ char getch()
 pthread_t printer;
 pthread_t scanner;
 
-int is_game = 0;
+int input_mode = 0;
 
 void *print_routine(void *arg) {
   int sock = *(int *)arg;
@@ -56,11 +52,11 @@ void *print_routine(void *arg) {
       strcpy(buffer2, buffer);
       char *token = strtok(buffer2, "\n");
       if (strcmp(token, "Uhuk Start") == 0) {
-        is_game = 1;
+        input_mode = 1;
         resetTermios();
         pthread_cancel(scanner);
       } else if (strcmp(token, "Uhuk Stop") == 0) {
-        is_game = 0;
+        input_mode = 0;
         resetTermios();
         pthread_cancel(scanner);
       } else {
@@ -75,7 +71,7 @@ void *scan_routine(void *arg) {
   char c[1024];
   int i = 0;
   while(1) {
-    if (!is_game) {
+    if (!input_mode) {
       do {
         char buff = getch();
 

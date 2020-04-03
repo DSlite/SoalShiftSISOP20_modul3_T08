@@ -62,13 +62,13 @@ void prompt(int prompt_no, int i) {
       "Choices: \e[s\n\e[u");
   }
   if (prompt_no == 310) {
-    sprintf(buffer, "\e[H\e[2JFinding Match.\n");
+    sprintf(buffer, "\e[H\e[2JFinding Match.   (Press Anything to Cancel)\n");
   }
   if (prompt_no == 311) {
-    sprintf(buffer, "\e[H\e[2JFinding Match..\n");
+    sprintf(buffer, "\e[H\e[2JFinding Match..  (Press Anything to Cancel)\n");
   }
   if (prompt_no == 312) {
-    sprintf(buffer, "\e[H\e[2JFinding Match...\n");
+    sprintf(buffer, "\e[H\e[2JFinding Match... (Press Anything to Cancel)\n");
   }
   if (prompt_no == 32) {
     sprintf(buffer, "\e[H\e[2JMatch Found (Press Anything to Start)\n");
@@ -203,6 +203,7 @@ void *server_main_routine(void *arg) {
       }
 
     } else if (player_data[i].is_ready == 0) {
+      prompt(0, i);
       prompt(20, i);
       prompt(2, i);
 
@@ -221,15 +222,18 @@ void *server_main_routine(void *arg) {
     } else if (player_data[i].is_game == 0) {
 
       prompt(989, i);
+      prompt(999, i);
       time_t now = time(NULL);
       while(player_data[!i].is_ready == 0) {
         prompt(310+((time(NULL)-now)%3), i);
         if (strlen(player_data[i].input) > 0) {
           player_data[i].is_ready = 0;
           memset(player_data[i].input, 0, 1000);
+          prompt(988, i);
           break;
         }
       }
+      prompt(998, i);
 
       if (player_data[i].is_ready) {
         prompt(999, i);
