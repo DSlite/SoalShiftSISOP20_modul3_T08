@@ -62,16 +62,16 @@ void prompt(int prompt_no, int i) {
       "Choices: \e[s\n\e[u");
   }
   if (prompt_no == 310) {
-    sprintf(buffer, "\e[H\e[2KFinding Match.\n");
+    sprintf(buffer, "\e[H\e[2JFinding Match.\n");
   }
   if (prompt_no == 311) {
-    sprintf(buffer, "\e[H\e[2KFinding Match..\n");
+    sprintf(buffer, "\e[H\e[2JFinding Match..\n");
   }
   if (prompt_no == 312) {
-    sprintf(buffer, "\e[H\e[2KFinding Match...\n");
+    sprintf(buffer, "\e[H\e[2JFinding Match...\n");
   }
   if (prompt_no == 32) {
-    sprintf(buffer, "\e[H\e[2KMatch Found (Press Anything to Start)\n");
+    sprintf(buffer, "\e[H\e[2JMatch Found (Press Anything to Start)\n");
   }
   if (prompt_no == 401) {
     sprintf(buffer, "\e[H\e[2KGame start in 3...\n");
@@ -96,6 +96,12 @@ void prompt(int prompt_no, int i) {
   }
   if (prompt_no == 422) {
     sprintf(buffer, "Sorry You Lose... (Press Anything to Continue)");
+  }
+  if (prompt_no == 989) {
+    sprintf(buffer, "\e[?25l");
+  }
+  if (prompt_no == 988) {
+    sprintf(buffer, "\e[?25h");
   }
   if (prompt_no == 999) {
     sprintf(buffer, "Uhuk Start\n");
@@ -211,8 +217,10 @@ void *server_main_routine(void *arg) {
         player_data[i].is_auth = 0;
         memset(player_data[i].name, 0, 1000);
       }
+
     } else if (player_data[i].is_game == 0) {
 
+      prompt(989, i);
       time_t now = time(NULL);
       while(player_data[!i].is_ready == 0) {
         prompt(310+((time(NULL)-now)%3), i);
@@ -239,7 +247,7 @@ void *server_main_routine(void *arg) {
       while(player_data[i].health > 0 && player_data[!i].health > 0) {
         if (strlen(player_data[i].input) > 0) {
           if (strcmp(player_data[i].input, " ") == 0) {
-            player_data[!i].health -=10;
+            player_data[!i].health -= 10;
             prompt(410, !i);
             prompt(411, i);
           }
@@ -257,6 +265,7 @@ void *server_main_routine(void *arg) {
       }
       get_data(buffer, i);
       prompt(998, i);
+      prompt(988, i);
 
       player_data[i].health = 100;
 
