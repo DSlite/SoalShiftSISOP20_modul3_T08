@@ -7,7 +7,7 @@
 #include <string.h>
 
 int matrix[4][5];
-long hasil[4][5];
+int hasil[4][5];
 
 struct args {
   int i;
@@ -17,8 +17,8 @@ struct args {
 void *factorial(void* arg) {
   int i = ((struct args*)arg)->i;
   int j = ((struct args*)arg)->j;
-  long hasilEl = 1;
-  for (int n = 1; n <= matrix[i][j]; n++) hasilEl += (long)n;
+  int hasilEl = 0;
+  for (int n = 1; n <= matrix[i][j]; n++) hasilEl += n;
   hasil[i][j] = hasilEl;
 }
 
@@ -55,7 +55,7 @@ int main() {
   printf("Matriks :\n");
   for (int i = 0; i < 4; i++) {
     for (int j = 0; j < 5; j++) {
-      printf("%20ld", hasil[i][j]);
+      printf("%4d", hasil[i][j]);
     }
     printf("\n");
   }

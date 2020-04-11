@@ -127,7 +127,7 @@ void *pokemon_escape_routine(void *arg) {
 void *search_pokemon_routine(void *arg) {
   sleep(10);
   int num = rand()%100;
-  if (num < 60) {
+  if (num < 100) {
     random_pokemon->is_locked = 1;
     trainer.is_appearing = 1;
     trainer.is_searching = 0;
@@ -154,13 +154,39 @@ void *pokemon_routine(void *arg) {
   }
 }
 
+void *print_search_routine (void *arg) {
+  pthread_detach(pthread_self());
+  while(trainer.is_searching) {
+    while(strlen(trainer.output) > 0);
+    if (trainer.is_searching) {
+      sprintf(trainer.output, "\e[s\e[3;1H\e[2K1. Searching.   (Press to Cancel)\n\e[u");
+    } else {
+      break;
+    }
+    sleep(1);
+    while(strlen(trainer.output) > 0);
+    if (trainer.is_searching) {
+      sprintf(trainer.output, "\e[s\e[3;1H\e[2K1. Searching..  (Press to Cancel)\n\e[u");
+    } else {
+      break;
+    }
+    sleep(1);
+    while(strlen(trainer.output) > 0);
+    if (trainer.is_searching) {
+      sprintf(trainer.output, "\e[s\e[3;1H\e[2K1. Searching... (Press to Cancel)\n\e[u");
+    } else {
+      break;
+    }
+    sleep(1);
+  }
+}
 
 void sighandler(int signum) {
   shmdt(random_pokemon);
   shmctl(random_pokemon_id, IPC_RMID, NULL);
   shmdt(shop_stock);
   shmctl(shop_stock_id, IPC_RMID, NULL);
-  printf("\e[H\e[2J\e[m\e[?1049l");
+  printf("\e[H\e[2J\e[m\e[25h\e[?1049l");
   resetTermios();
   exit(1);
 }
@@ -176,33 +202,40 @@ int main() {
   shop_stock = shmat(shop_stock_id, NULL, 0);
 
   trainer.mode = 0;
+  trainer.menu = 1;
   trainer.powder_counter = 0;
   trainer.is_searching = 0;
   trainer.is_appearing = 0;
   trainer.is_escaping = 0;
+  pthread_t tid[2];
+  printf("\e[?1049h");
+  pthread_create(&tid[0], NULL, &print_routine, NULL);
+  pthread_create(&tid[1], NULL, &scan_routine, NULL);
 
   time_t searching;
   pthread_t search_tid;
 
   while(1) {
+    while(strlen(trainer.output) == 0);
     sprintf(trainer.output, "\e[H\e[2J");
     if (trainer.mode == 0) {
       if (trainer.menu == 1) {
 
         // STATIC PART
 
-        while(strlen(trainer.output) != 0);
+        while(strlen(trainer.output) > 0);
         sprintf(trainer.output,
           "--\e[31mPoke\e[37mZone\e[m--\n"
           "------------\n");
 
-        while(strlen(trainer.output) != 0);
+        while(strlen(trainer.output) > 0);
         if (trainer.is_searching) {
           sprintf(trainer.output, "\n");
         } else {
           sprintf(trainer.output, "1. Cari Pokemon\n");
         }
 
+        while(strlen(trainer.output) > 0);
         sprintf(trainer.output,
           "2. Pokedex\n"
           "3. Shop\n"
@@ -211,18 +244,19 @@ int main() {
         // DYNAMIC PART w/ Searching
 
         if (trainer.is_searching) {
-          searching = time(NULL);
+          // searching = time(NULL);
+          pthread_create(&search_tid, NULL, &print_search_routine, NULL);
           while(trainer.is_searching) {
             // DYNAMIC OUTPUT
-            time_t diff = (time(NULL) - searching)%3
-            while(strlen(trainer.output) != 0);
-            if (diff == 0) {
-              sprintf(trainer.output, "\e[s\e[3;1H\e[2K1. Searching.   (Press to Cancel)\e[u");
-            } else if (diff == 1) {
-              sprintf(trainer.output, "\e[s\e[3;1H\e[2K1. Searching..  (Press to Cancel)\e[u");
-            } else if (diff == 2) {
-              sprintf(trainer.output, "\e[s\e[3;1H\e[2K1. Searching... (Press to Cancel)\e[u");
-            }
+            // time_t diff = (time(NULL) - searching)%3;
+            // while(strlen(trainer.output) > 0);
+            // if (diff == 0) {
+            //   sprintf(trainer.output, "\e[s\e[3;1H\e[2K1. Searching.   (Press to Cancel)\e[u");
+            // } else if (diff == 1) {
+            //   sprintf(trainer.output, "\e[s\e[3;1H\e[2K1. Searching..  (Press to Cancel)\e[u");
+            // } else if (diff == 2) {
+            //   sprintf(trainer.output, "\e[s\e[3;1H\e[2K1. Searching... (Press to Cancel)\e[u");
+            // }
 
             // DYNAMIC INPUT
             if (trainer.input != 0) {
@@ -240,7 +274,7 @@ int main() {
 
           }
         } else {
-          while(trainer.input != 0);
+          while(trainer.input == 0);
           char buffer = trainer.input;
           trainer.input = 0;
           if (buffer == '1') {
@@ -262,7 +296,7 @@ int main() {
 
         if (trainer.is_searching) {
           while(trainer.is_searching) {
-            for (int i = 0; i < )
+            // for (int i = 0; i < )
           }
         } else {
 

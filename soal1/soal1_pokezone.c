@@ -39,7 +39,7 @@ void *update_random_pokemon(void *arg) {
   char *legendary_list[] = {"Mew", "Mewtwo", "Moltres", "Zapdos", "Articuno"};
 
   while(1) {
-    while(!random_pokemon->is_locked)
+    while(!random_pokemon->is_locked) {
       random_pokemon->is_shiny = 0;
       random_pokemon->ap = 100;
 
